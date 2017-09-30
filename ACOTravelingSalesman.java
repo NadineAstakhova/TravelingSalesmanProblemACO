@@ -1,12 +1,16 @@
 package TravelingSalesmanProblemACO;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.awt.*;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.*;
+import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -54,11 +58,14 @@ public class ACOTravelingSalesman {
     }
 
     public static void main(String[] args) {
-        ACOTravelingSalesman antColony = new ACOTravelingSalesman(3);
+        ACOTravelingSalesman antColony = new ACOTravelingSalesman(6);
 
         antColony.startAntOptimization();
         System.out.println(antColony.getDistance(49.13, 28.28, 55.45, 37.37));
-        //System.out.println(antColony.fileRead("C:\\Users\\Nadine\\IdeaProjects\\test\\src\\main\\resources\\cities.txt"));
+        //antColony.fileRead("C:\\Users\\Nadine\\IdeaProjects\\test\\src\\main\\resources\\cities.txt");
+     //   antColony.hh();
+
+
     }
 
 
@@ -70,15 +77,78 @@ public class ACOTravelingSalesman {
         /*IntStream.range(0, n)
                 .forEach(i -> IntStream.range(0, n)
                         .forEach(j -> randomMatrix[i][j] = Math.abs(random.nextInt(100) + 1)));*/
+        HashMap<Point.Double, String> cities = this.deserializedFromFile("hashmap.ser");
+        System.out.println("Deserialized HashMap..");
+        // Display content using Iterator
+        Set set = cities.entrySet();
+        Iterator iterator = set.iterator();
+        Iterator iterator2 = set.iterator();
+        DecimalFormat df2 = new DecimalFormat(".##");
+
+
         for (int i = 0; i < randomMatrix.length; i++) {
+
+                if(iterator.hasNext()) {
+
+                    Map.Entry entry = (Map.Entry) iterator.next();
+
+                    for (int j = 0; j < randomMatrix.length;) {
+                        if(i == j) {
+                            randomMatrix[i][j] = 0;
+                            j++;
+                        }
+
+                    while (iterator.hasNext()) {
+                        Map.Entry mentry = (Map.Entry) iterator.next();
+                        randomMatrix[i][j] = this.getDistance(((Point.Double) entry.getKey()).getX(),
+                                ((Point.Double) entry.getKey()).getY(),
+                                ((Point.Double) mentry.getKey()).getX(),
+                                ((Point.Double) mentry.getKey()).getY()
+                        );
+                        System.out.println(df2.format(randomMatrix[i][j]));
+                        j++;
+                    }
+
+                }
+            i++;
+
+
+
+        }
+
+
+        }
+       // while (iterator.hasNext()) {
+       /* for (int i = 0; i < randomMatrix.length; i++) {
+            for (int j = 0; j < randomMatrix.length; j++) {
+
+
+                    Map.Entry mentry = (Map.Entry) iterator.next();
+                    //randomMatrix[k][l] = this.getDistance(((Point.Double) mentry.getKey()).getX(), ((Point.Double) mentry.getKey()).getY(), ((Point.Double) mentry.getKey()).getX(), 37.37);
+                    System.out.print("key: " + ((Point.Double) mentry.getKey()).getX() + " & Value: ");
+                    if (iterator.hasNext())
+
+                   randomMatrix[i][j] = this.getDistance(((Point.Double) mentry.getKey()).getX(),
+                           ((Point.Double) mentry.getKey()).getY(),
+                           ((Point.Double)((Map.Entry) iterator.next()).getKey()).getX(),
+                           ((Point.Double)((Map.Entry) iterator.next()).getKey()).getY());
+
+
+                    System.out.println(mentry.getValue());
+
+                }
+            }}*/
+
+       /*for (int i = 0; i < randomMatrix.length; i++) {
             for (int j = 0; j < randomMatrix.length; j++) {
                 if (i==j)
                     randomMatrix[i][j] = 0;
                 else
-                    randomMatrix[i][j] = Math.abs(random.nextInt(100) + 1);
+                    randomMatrix[i][j] = this.getDistance(49.13, 28.28, 55.45, 37.37);
 
             }
-        }
+        }*/
+        System.out.println("");
         for (int i = 0; i < randomMatrix.length; i++) {
             for (int j = 0; j < randomMatrix.length; j++) {
                 System.out.print(randomMatrix[i][j] + " ");
@@ -266,30 +336,83 @@ public class ACOTravelingSalesman {
         double ad = Math.atan2(y, x);
         double dist = t * EARTH_RADIUS;
 
+
         return dist * 0.001;
 
     }
 
-    public String fileRead(String file){
-        /*try
+    public void fileRead(String file){
+        try
         {
             ObjectMapper mapper = new ObjectMapper();
+            String jsonString = "{\"name\":\"JavaInterviewPoint\", \"department\":\"x y\"}";
 
-            // read JSON from a file
-            Map<String, Object> jsonMap = mapper.readValue(new File(
-                            "D:\\test.json"),
-                    new TypeReference<Map<String, Object>>(){});
+            Map<String, Object> jsonMap = new HashMap<String, Object>();
 
-            System.out.println("*** JSON File Contents ***");
-            System.out.println("Name : "+jsonMap.get("name"));
-            System.out.println("Name : "+jsonMap.get("department"));
-            System.out.println("Name : "+jsonMap.get("age"));
+            // convert JSON string to Map
+            jsonMap = mapper.readValue(jsonString,
+                    new TypeReference<Map<String, Point>>(){});
+            for(Map.Entry m:jsonMap.entrySet()){
+                System.out.println(m.getKey()+" "+m.getValue());
+            }
 
-        } catch (IOException ie)
+
+            System.out.println(jsonMap);
+        }
+        catch(IOException ie)
         {
             ie.printStackTrace();
-        }*/
-        return "";
+        }
+
+
+    }
+
+    /*public void hh (){
+        HashMap<Point.Double, String> hmap = new HashMap<Point.Double, String>();
+        //Adding elements to HashMap
+        hmap.put(new Point.Double(48.0,37.47), "Donetsk");
+        hmap.put(new Point.Double(49.13,28.28), "Vinnytsia");
+        hmap.put(new Point.Double(46.28,30.43), "Odessa");
+        hmap.put(new Point.Double(48.17,37.10), "Krasnoarmeysk");
+        hmap.put(new Point.Double(50.27,30.30), "Kiev");
+        hmap.put(new Point.Double(52.13,21.1), "Warsaw");
+
+        try
+        {
+            FileOutputStream fos =
+                    new FileOutputStream("hashmap.ser");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(hmap);
+            oos.close();
+            fos.close();
+            System.out.printf("Serialized HashMap data is saved in hashmap.ser");
+        }catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
+    }*/
+
+    public HashMap<Point.Double, String> deserializedFromFile (String file){
+        HashMap<Point.Double, String> map = null;
+        try
+        {
+            FileInputStream fis = new FileInputStream(file);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            map = (HashMap) ois.readObject();
+            ois.close();
+            fis.close();
+        }catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+
+        }catch(ClassNotFoundException c)
+        {
+            System.out.println("Class not found");
+            c.printStackTrace();
+
+        }
+
+        return map;
     }
 
 
